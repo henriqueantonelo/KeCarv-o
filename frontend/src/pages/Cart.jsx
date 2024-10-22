@@ -1,17 +1,21 @@
 import React, { useContext, useState } from "react";
-import { CartContext } from "../context/CartContext"; // Importa o contexto do carrinho
+import { CartContext } from "../context/CartContext";
+import ConfirmModal from "../components/ConfirmModal";
+import ConfirmedModal from "../components/ConfirmedModal"; // Importa a modal de confirmação
 
 const Cart = () => {
-  const { purchases, removeFromCart } = useContext(CartContext); // Usa o estado do carrinho e a função de remover
+  const { purchases, removeFromCart } = useContext(CartContext);
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
     neighborhood: "",
     street: "",
     houseNumber: "",
-    block: "", // Adiciona o campo Bloco ao estado
+    block: "",
   });
-  const [isApartment, setIsApartment] = useState(false); // Estado para controlar a checkbox
+  const [isApartment, setIsApartment] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false); // Estado da modal de confirmação
+  const [isConfirmedModalOpen, setIsConfirmedModalOpen] = useState(false); // Estado da segunda modal
 
   const total = purchases.reduce(
     (acc, item) => acc + item.product.price * item.quantity,
@@ -25,29 +29,25 @@ const Cart = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Aqui você pode implementar a lógica para finalizar o pedido
-    console.log("Dados do pedido:", { ...formData, purchases });
-    // Limpa os dados do formulário
-    setFormData({
-      name: "",
-      phone: "",
-      neighborhood: "",
-      street: "",
-      houseNumber: "",
-      block: "", // Reseta o campo Bloco
-    });
-    setIsApartment(false); // Reseta o estado da checkbox
+    // Abre a modal de confirmação quando o formulário é enviado
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirm = () => {
+    // Aqui você pode adicionar a lógica para processar o pedido
+    setIsConfirmModalOpen(false); // Fecha a primeira modal
+    setIsConfirmedModalOpen(true); // Abre a modal de pedido confirmado
   };
 
   return (
-    <div className="py-5 px-12 ">
+    <div className="py-5 px-12">
       <p className="font-bold text-lg">Resumo da compra</p>
       {purchases.map((item, index) => (
         <div key={index} className="flex justify-between items-center">
           <button
             onClick={() => removeFromCart(item.product.id)}
-            className="text-red-500 mr-2" // Estilo para o "X"
-            style={{ fontSize: "1.2rem", lineHeight: "1" }} // Ajuste de tamanho e alinhamento
+            className="text-red-500 mr-2"
+            style={{ fontSize: "1.2rem", lineHeight: "1" }}
           >
             x
           </button>
@@ -63,7 +63,6 @@ const Cart = () => {
       </div>
 
       <div className="border-t-2 mt-5">
-        {/* Formulário de Dados para Entrega */}
         <form onSubmit={handleSubmit} className="mt-8">
           <h2 className="font-bold text-lg">Dados para Entrega</h2>
           <div className="flex flex-col space-y-4 mt-4">
@@ -113,7 +112,6 @@ const Cart = () => {
               required
             />
 
-            {/* Checkbox para Apartamento */}
             <label className="flex items-center mb-2">
               <div
                 className={`w-6 h-6 border-2 rounded-md flex items-center justify-center mr-2 ${
@@ -124,17 +122,13 @@ const Cart = () => {
                   type="checkbox"
                   checked={isApartment}
                   onChange={() => setIsApartment(!isApartment)}
-                  className="opacity-0 absolute" // Oculta a checkbox real
+                  className="opacity-0 absolute"
                 />
-                {isApartment && <span className="text-white">✓</span>}{" "}
-                {/* Marca se selecionado */}
+                {isApartment && <span className="text-white">✓</span>}
               </div>
-              <span className="text-gray-500" style={{ color: "#A0AEC0" }}>
-                Apartamento
-              </span>
+              <span className="text-gray-500">Apartamento</span>
             </label>
 
-            {/* Campo Bloco e Número */}
             <input
               type="text"
               name="block"
@@ -142,8 +136,8 @@ const Cart = () => {
               value={formData.block}
               onChange={handleChange}
               className="bg-gray-200 p-2 rounded-xl"
-              style={{ opacity: isApartment ? 1 : 0.5 }} // Controla a opacidade
-              required
+              style={{ opacity: isApartment ? 1 : 0.5 }}
+              required={isApartment}
             />
           </div>
           <div className="text-center">
@@ -156,6 +150,22 @@ const Cart = () => {
           </div>
         </form>
       </div>
+
+      {/* Modal de confirmação */}
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        purchases={purchases}
+        total={total}
+        formData={formData}
+        onConfirm={handleConfirm} // Adiciona o callback de confirmação
+      />
+
+      {/* Modal de pedido confirmado */}
+      <ConfirmedModal
+        isOpen={isConfirmedModalOpen}
+        onClose={() => setIsConfirmedModalOpen(false)}
+      />
     </div>
   );
 };

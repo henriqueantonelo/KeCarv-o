@@ -11,6 +11,8 @@ import profile_icon from "./profile_icon.png";
 import search_icon from "./search_icon.png";
 import menu_icon from "./menu_icon.png";
 import cross_icon from "./cross_icon.png";
+import checkarrow_icon from "./checkarrow_icon.png";
+import checkarrow_icon_svg from "./checkarrow_icon_svg.svg";
 
 export const assets = {
   logo,
@@ -21,6 +23,8 @@ export const assets = {
   bin_icon,
   menu_icon,
   cross_icon,
+  checkarrow_icon,
+  checkarrow_icon_svg,
 };
 
 export const products = [
